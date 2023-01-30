@@ -14,7 +14,6 @@ import {
 import { Layout } from "@/components/Layout";
 import { TypesList, CallMyPokemon } from "@/components/Pokemon";
 import { getPokemonId } from "@/services/format/pokemon";
-import { useEffect, useState } from "react";
 import { capitalize } from "lodash";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -25,7 +24,9 @@ export async function getServerSideProps(context: NextPageContext) {
   const pokemonIdNumber = Number(pokemonId);
   if (isNaN(pokemonIdNumber)) return { notFound: true };
 
-  return { props: { pokemonIdNumber } };
+  return {
+    props: { pokemonDetails: await getPokemonDetails(pokemonIdNumber) },
+  };
 }
 
 type PokemonDetails = {
@@ -37,39 +38,36 @@ type PokemonDetails = {
 async function getPokemonDetails(
   pokemonIdNumber: number
 ): Promise<PokemonDetails> {
-  const pokemon = await getPokemon(pokemonIdNumber);
-  const prevPokemon =
+  const pokemonPromise = getPokemon(pokemonIdNumber);
+  const prevPokemonPromise =
     pokemonIdNumber - 1 > 0
-      ? await getPokemon(pokemonIdNumber - 1)
-      : await getPokemon(MAX_POKEMON_ID);
-  const nextPokemon =
+      ? getPokemon(pokemonIdNumber - 1)
+      : getPokemon(MAX_POKEMON_ID);
+  const nextPokemonPromise =
     pokemonIdNumber + 1 < MAX_POKEMON_ID
-      ? await getPokemon(pokemonIdNumber + 1)
-      : await getPokemon(1);
+      ? getPokemon(pokemonIdNumber + 1)
+      : getPokemon(1);
 
-  const pokemonSpecie = await getPokemonSpecie(pokemonIdNumber);
-  return { pokemon, pokemonSpecie, prevPokemon, nextPokemon };
+  const pokemonSpeciePromise = getPokemonSpecie(pokemonIdNumber);
+  const [pokemon, pokemonSpecie, prevPokemon, nextPokemon] = await Promise.all([
+    pokemonPromise,
+    pokemonSpeciePromise,
+    prevPokemonPromise,
+    nextPokemonPromise,
+  ]);
+  return {
+    pokemon,
+    pokemonSpecie,
+    prevPokemon,
+    nextPokemon,
+  };
 }
 
 export default function PokemonDetails({
-  pokemonIdNumber,
+  pokemonDetails: { pokemon, pokemonSpecie, prevPokemon, nextPokemon },
 }: {
-  pokemonIdNumber: number;
+  pokemonDetails: PokemonDetails;
 }) {
-  const [pokemonDetails, setPokemonDetails] = useState<PokemonDetails>();
-  useEffect(() => {
-    getPokemonDetails(pokemonIdNumber).then((pokemonDetails) =>
-      setPokemonDetails(pokemonDetails)
-    );
-    return () => {
-      setPokemonDetails(undefined);
-    };
-  }, [pokemonIdNumber]);
-
-  if (!pokemonDetails) return null;
-
-  const { pokemon, pokemonSpecie, prevPokemon, nextPokemon } = pokemonDetails;
-
   return (
     <>
       <Head>
