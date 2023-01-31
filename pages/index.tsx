@@ -34,6 +34,7 @@ export default function Home() {
         <meta name="description" content="A nice pokedex app" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
+        <link rel="preconnect" href="https://pokeapi.co" />
       </Head>
       <Layout>
         <div className={styles.main}>
