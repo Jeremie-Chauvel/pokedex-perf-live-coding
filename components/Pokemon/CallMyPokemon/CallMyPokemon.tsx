@@ -1,6 +1,6 @@
 import styles from "./CallMyPokemon.module.css";
 import { FormEvent } from "react";
-import { parsePhoneNumber, PhoneNumber } from "libphonenumber-js/max";
+import type { PhoneNumber } from "libphonenumber-js/max";
 type CustomElements = HTMLFormControlsCollection & {
   phoneNumber: HTMLInputElement;
 };
@@ -15,12 +15,13 @@ export default function CallMyPokemon() {
       <h2 className={styles.title}>Call My Pokemon</h2>
       <form
         className={styles.form}
-        onSubmit={(event: FormEvent<CustomForm>) => {
+        onSubmit={async (event: FormEvent<CustomForm>) => {
           event.preventDefault();
 
           const target = event.currentTarget.elements;
           const phoneNumberRawValue = target.phoneNumber.value;
           let phoneNumber: PhoneNumber | undefined;
+          const { parsePhoneNumber } = await import("libphonenumber-js/max");
           try {
             phoneNumber = parsePhoneNumber(phoneNumberRawValue, "FR");
           } catch (e) {
