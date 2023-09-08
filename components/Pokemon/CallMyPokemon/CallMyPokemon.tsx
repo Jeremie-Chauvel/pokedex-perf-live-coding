@@ -1,3 +1,4 @@
+"use client";
 import styles from "./CallMyPokemon.module.css";
 import { FormEvent } from "react";
 import type { PhoneNumber } from "libphonenumber-js/max";

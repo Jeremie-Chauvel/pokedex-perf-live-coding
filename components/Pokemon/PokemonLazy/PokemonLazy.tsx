@@ -1,3 +1,4 @@
+"use client";
 import { getPokemon, PokemonResponse } from "@/services/api/pokemon";
 import { useEffect, useRef, useState } from "react";
 import Pokemon from "../Pokemon/Pokemon";
